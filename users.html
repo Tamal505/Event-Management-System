@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" alt="Logo">
+    <h1>Users</h1>
+  </div>
+
+  <div class="main">
+    <h2>User List</h2>
+    <table border="1" width="100%" cellpadding="8">
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+      </tr>
+    </table>
+
+    <h2>Add New User</h2>
+    <form id="userForm">
+      <input type="text" id="username" placeholder="Username" required><br><br>
+      <input type="text" id="role" placeholder="Role (Admin/Manager/Viewer)" required><br><br>
+      <button type="submit" class="btn">Add User</button>
+    </form>
+  </div>
+
+  <script>
+    const USER_API = "http://localhost:5000/api/users";
+
+    // Load users
+    function loadUsers() {
+      fetch(USER_API)
+        .then(res => res.json())
+        .then(data => {
+          let table = document.querySelector("table");
+          table.innerHTML = `
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+            </tr>
+          `;
+          data.forEach(user => {
+            let row = `<tr>
+              <td>${user.username}</td>
+              <td>${user.role}</td>
+            </tr>`;
+            table.innerHTML += row;
+          });
+        });
+    }
+
+    // Add user
+    document.getElementById("userForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const newUser = {
+        username: document.getElementById("username").value,
+        role: document.getElementById("role").value
+      };
+
+      fetch(USER_API + "/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser)
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("✅ User Added Successfully!");
+        loadUsers();
+        document.getElementById("userForm").reset();
+      });
+    });
+
+    // Initial load
+    loadUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" alt="Logo">
+    <h1>Events</h1>
+  </div>
+
+  <div class="main">
+    <h2>Event List</h2>
+    <table border="1" width="100%" cellpadding="8">
+      <tr>
+        <th>Event Name</th>
+        <th>Date</th>
+        <th>Location</th>
+      </tr>
+    </table>
+
+    <h2>Add New Event</h2>
+    <form id="eventForm">
+      <input type="text" id="name" placeholder="Event Name" required><br><br>
+      <input type="date" id="date" required><br><br>
+      <input type="text" id="location" placeholder="Location" required><br><br>
+      <button type="submit" class="btn">Add Event</button>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:5000/api/events";
+
+    // Load events
+    function loadEvents() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          let table = document.querySelector("table");
+          table.innerHTML = `
+            <tr>
+              <th>Event Name</th>
+              <th>Date</th>
+              <th>Location</th>
+            </tr>
+          `;
+          data.forEach(event => {
+            let row = `<tr>
+              <td>${event.name}</td>
+              <td>${event.date}</td>
+              <td>${event.location}</td>
+            </tr>`;
+            table.innerHTML += row;
+          });
+        });
+    }
+
+    // Add event
+    document.getElementById("eventForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const newEvent = {
+        name: document.getElementById("name").value,
+        date: document.getElementById("date").value,
+        location: document.getElementById("location").value
+      };
+
+      fetch(API_URL + "/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEvent)
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("✅ Event Added Successfully!");
+        loadEvents();
+        document.getElementById("eventForm").reset();
+      });
+    });
+
+    // Initial load
+    loadEvents();
+  </script>
+</body>
+</html>
